@@ -1,0 +1,32 @@
+<?xml version='1.0' encoding='UTF-8'?> 
+<!-- The target file and folder-->
+<!-- level: 1 file read;2 file changed,modified,attribute changed;3 key words show;4 file deleted -->
+
+<target-files>
+
+	<target-file>
+		<file-path>/home/yujun/work/tomcat/yujunsecurity/apache-tomcat-7.0.59/webapps/</file-path>
+		<file-ext>*.jsp</file-ext>
+		<exclude>*.log</exclude>
+		<key-words>regex_demo.xml</key-words>
+		<level>2,3,4</level>
+	</target-file>
+
+	<target-file>
+		<file-path></file-path>
+		<file-ext>xml</file-ext>
+		<exclude></exclude>
+		<key-words></key-words>
+		<level>2,4</level>
+	</target-file>
+
+	<target-file>
+		<file-path>/etc/passwd</file-path>
+		<file-ext></file-ext>
+		<exclude></exclude>
+		<key-words></key-words>
+		<level>1,2,4</level>
+	</target-file>
+
+
+</target-files>
