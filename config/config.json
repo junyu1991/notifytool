@@ -1,10 +1,10 @@
 {
 	"email":{
-		"host":"mail.gnnt.com.cn",
+		"host":"",
 		"port":"25",
-		"sender":"yujun@gnnt.com.cn",
-		"password":"gnnt(*#<>||}{12587Fish",
-		"receiver":"461871400@qq.com"
+		"sender":"",
+		"password":"",
+		"receiver":"@qq.com"
 	}
 
 }
