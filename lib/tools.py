@@ -4,6 +4,8 @@
 
 import os
 import time
+import traceback
+
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
@@ -33,27 +35,32 @@ def get_target_files(config_file='../config/target_file.xml'):
         root=target_xml.getroot()
         if root.tag == 'target-files':
             for child in root:
-                file_path=''
-                file_ext=''
+                file_path=[]
+                file_ext=dict()
                 exclude=''
-                keywords=''
                 level=''
                 for c in child:
                     if c.tag=='file-path':
-                        file_path=c.text
-                    if c.tag=='file-ext':
-                        file_ext=c.text
-                    if c.tag=='exclude':
+                        file_ext_=[]
+                        if c.text:
+                            file_ext_=c.text.split('|')
+                        file_pre=c.attrib.get('parent')
+                        if not file_pre:
+                            file_pre=''
+                        for fe in file_ext_:
+                            file_path.append(os.path.join(file_pre,fe))
+                    elif c.tag=='file-ext':
+                        file_ext[c.text]=c.attrib.get('key_words')
+                    elif c.tag=='exclude':
                         exclude=c.text
-                    if c.tag=='key-words':
-                        keywords=c.text
-                    if c.tag=='level':
+                    elif c.tag=='level':
                         level=c.text
 
-                temp=target_file(file_path=file_path,file_ext=file_ext,exclude=exclude,keywords=keywords,level=level)
+                temp=target_file(file_path=file_path,file_ext=file_ext,exclude=exclude,keywords=None,level=level)
                 target_files.append(temp)
         return target_files
     except Exception,e:
+        traceback.print_exc()
         log("Exception %s" % str(e),ERROR)
         return []
 

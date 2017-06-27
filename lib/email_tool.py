@@ -17,18 +17,23 @@ import traceback
 
 __emailencoding='utf-8'
 
-class Email_tool:
+class EmailTool:
 
-    def __init__(self,mail_host,sender,password,receivers,**args):
+    def __init__(self,mail_host,sender,password,receivers,mail_port,**args):
 
         self.mail_host=mail_host
         self.sender=sender
         self.password=password
         self.receivers=receivers
         self.args=args
+        self.mail_port=mail_port
 
-    def send_text(self):
-        pass
+    def send_text(self,message,subject):
+        send_text(self.mail_host,self.sender,self.password,self.receivers,message,subject,self.mail_port)
+
+    def send_email_with_attachment(self,send_file,message,subject):
+        send_email_with_attachment(self.mail_host,self.sender,self.password,self.receivers,send_file,message,subject,self.mail_port)
+
 
 
 def send_text(mail_host,sender,password,receivers,message='',Subject='Send text',mail_port=25):
@@ -58,12 +63,12 @@ def send_text(mail_host,sender,password,receivers,message='',Subject='Send text'
 
 def make_smtpObject(mail_host,login_name,password,mail_port=25):
     try:
-        smtpObject=smtplib.SMTP(host=mail_host,port=mail_port,timeout=25)
+        #print (mail_host,login_name,password,mail_port)
+        smtpObject=smtplib.SMTP(host=mail_host,port=int(mail_port),timeout=25)
         smtpObject.starttls()
         smtpObject.login(login_name,password)
         return smtpObject
     except Exception,e:
-        print e
         traceback.print_exc()
         return None
 

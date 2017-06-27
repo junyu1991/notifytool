@@ -1,31 +1,37 @@
 <?xml version='1.0' encoding='UTF-8'?> 
 <!-- The target file and folder-->
-<!-- level: 1 file read;2 file changed,modified,attribute changed;3 key words show;4 file deleted -->
+<!-- level: 1 file read;2 file changed,modified;3 attribute changed;4 file deleted ;5 file changed with key words showed-->
 
 <target-files>
 
 	<target-file>
-		<file-path>/home/yujun/work/tomcat/yujunsecurity/apache-tomcat-7.0.59/webapps/</file-path>
-		<file-ext>*.jsp</file-ext>
-		<exclude>*.log</exclude>
-		<key-words>regex_demo.xml</key-words>
-		<level>2,3,4</level>
+		<file-path parent='/home/yujun/work/tomcat/yujunsecurity/apache-tomcat-7.0.59/'>webapps|lib|conf|bin</file-path>
+		<file-ext key_words='jsp-key.xml'>/webapps/*.jsp|/webapps/*.jspx</file-ext>
+		<file-ext key_words='xml-key.xml'>/conf/*.xml|/webapps/*.xml</file-ext>
+		<exclude>logs/.*,work/.*</exclude>
+		<level>2,3,4,5</level>
 	</target-file>
 
 	<target-file>
-		<file-path></file-path>
-		<file-ext>xml</file-ext>
+		<file-path parent='/usr/bin/'></file-path>
+		<file-ext></file-ext>
 		<exclude></exclude>
 		<key-words></key-words>
 		<level>2,4</level>
 	</target-file>
 
 	<target-file>
-		<file-path>/etc/passwd</file-path>
+		<file-path parent=''>/etc/passwd</file-path>
 		<file-ext></file-ext>
 		<exclude></exclude>
 		<key-words></key-words>
-		<level>1,2,4</level>
+		<level>2,4</level>
+	</target-file>
+
+	<target-file>
+		<file-path>/home/yujun/work/python/mytool</file-path>
+		<exclude></exclude>
+		<level></level>
 	</target-file>
 
 

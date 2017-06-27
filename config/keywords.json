@@ -1,0 +1,17 @@
+{
+	"tomcat-keywords":[
+		"FileOutputStream","FileInputStream","DataInputStream",
+		"java\.io",
+		"reGeorg","SocketChannel\.open\(\)",
+		"getRuntime","Runtim",
+		"Process",
+		"JspSpy","SpyClassLoader","StreamConnector",
+		"all_procedures","user_resource","getRSValueString",
+		"getFirmPassword","getTableInfo"
+	],
+
+	"file-keywords":[],
+
+	"folder-keywords":[]
+
+}

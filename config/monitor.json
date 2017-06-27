@@ -1,0 +1,40 @@
+{
+	"monitor-tomcats": {
+		"tomcat-dirs":["${HOME}/work/tomcat/yujunsecurity/apache-tomcat-7.0.59/"],
+		"white-list":["${HOME}/work/tomcat/yujunsecurity/apache-tomcat-7.0.59/lib/servlet-api.jar"]
+	}, 
+	"monitor-files": [
+		"/etc/passwd", 
+		"/etc/shadow"
+	], 
+	"monitor-folders": {
+		"dirs":["/usr/bin", "${HOME}/bin", "/sbin/", "/bin"],
+		"white-list":[]
+	},
+	"s-monitor-files":{
+		"m-open":["/sbin/insmod"],
+		"m-access":["/sbin/insmod"],
+		"m-change":[],
+		"m-attr":[],
+		"m-delete":[],
+		"m-create":[],
+		"m-modify":[]
+	},
+	"comment":{
+		"monitor-tomcats":{
+			"tomcat-dirs":"The monitor tomcat file location,the program will auto exclude `logs`,`work`,`temp` folders",
+			"white-list":"The file under the tomcat folders that you don't want to trigger the monitor method",
+			"":"When jsp file changed and key words showed in the jsp file,the Warning email will be sent to the user",
+			"":"Other file such as .sh .xml file,will trager sending email when file modified,deleted"
+		},
+		"monitor-files":"The other file you want to monitor",
+		"monitor-folders":{
+			"dirs":"The other important folders need to monitor,eg: /usr/bin.The program will send a email when the file under the these folder was deleted or modified",
+			"white-list":"The file under the folder you don't want to monitor"
+		},
+		"s-monitor-files":"Some special opration for special file will tragger the email sending,eg insmod,some hacker will insert some module to the kernel",
+		"other-comment":""
+
+	
+	}
+}
