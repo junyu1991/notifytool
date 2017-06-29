@@ -8,7 +8,6 @@ notify tool
 
 import pyinotify
 import os
-import tools
 import json
 import sys
 import re
@@ -19,16 +18,10 @@ from email_tool import EmailTool
 
 import file_tool
 
-
-'''define the file change flag 2017-05-18'''
-_FILE_READ=1
-_FILE_CHANGED=2
-_FILE_ATTRI_CHANGED=3
-_FILE_DELETED=4
-_FILE_CHANGE_WITH_KEYWORDS=5
+from tools import Monitor_Log
 
 '''
-define global monitor files
+define global variables
 '''
 target_files=[]
 key_words=''
@@ -50,18 +43,20 @@ class TomcatEventHandler(pyinotify.ProcessEvent):
         self.__whitelist=whitelist
         self.__tomcat_regx=re.compile('.*(\.xml|\.jar|\.sh)$')
         self.__ip=get_ip()
+        self._log=Monitor_Log(logname='TomcatLog',logfile='%s-tomcat-' % self.__ip)
+
 
     def process_IN_OPEN(self,event):
         pass
 
     def process_IN_MODIFY(self,event):
-        tools.log("Modifing file %s" % event.pathname)
+        self.__log.warning("Modifing file %s" % event.pathname)
 
     def process_IN_CREATE(self,event):
-        tools.log("Creating file %s" % event.pathname)
+        self.__log.warning("Creating file %s" % event.pathname)
 
     def process_IN_DELETE(self,event):
-        tools.log("Deleting file %s" % event.pathname)
+        self.__log.warning("Deleting file %s" % event.pathname)
         if(self.__tomcat_regx.search(event.pathname) and (event.pathname not in self.__whitelist)):
             if get_email_tool():
                 string='''The Tomcat file %s was deleted at %s .(IP : %s)''' % (event.pathname,time.ctime(),self.__ip)
@@ -69,7 +64,7 @@ class TomcatEventHandler(pyinotify.ProcessEvent):
 
 
     def process_IN_CLOSE_WRITE(self,event):
-        tools.log("Write file %s" % event.pathname)
+        self.__log.warning("Write file %s" % event.pathname)
         if (event.pathname.endswith('.jsp') or event.pathname.endswith('.jspx')) and (not is_filechange_ok(event.pathname)) and (event.pathname not in self.__whitelist):
             if get_email_tool():
                 string='''Web shell(%s) found in the machine %s at %s''' % (event.pathname,self.__ip,time.ctime())
@@ -82,7 +77,7 @@ class TomcatEventHandler(pyinotify.ProcessEvent):
 
 
     def process_IN_ATTRIB(self,event):
-        tools.log("Change attribute %s" % event.pathname)
+        self.__log.warning("Change attribute %s" % event.pathname)
 
     def process_IN_MOVED_TO(self,event):
         pass
@@ -113,9 +108,10 @@ class EventHandler(pyinotify.ProcessEvent):
         self.__whitelist=whitelist
         self.__ip=get_ip()
         self.__message_string="""File %s was %s at %s at %s ,please handle it."""
+        self.__log=Monitor_Log(logname='SystemLog',logfile='%s-system-' % self.__ip)
 
     def process_IN_CREATE(self,event):
-        tools.log("Creating:%s" % event.pathname)
+        self.__log.warning("Creating:%s" % event.pathname)
         if event.pathname in self.__create:
             if get_email_tool():
                 emailtool.send_email_with_attachment(send_file=[event.pathname],\
@@ -124,7 +120,7 @@ class EventHandler(pyinotify.ProcessEvent):
         #file_tool.handle_file_event(event,_FILE_CHANGED)
 
     def process_IN_DELETE(self,event):
-        tools.log("Deleting:%s" % event.pathname,tools.WARN)
+        self.__log.warning("Deleting:%s" % event.pathname)
         if event.pathname in self.__delete:
             string='''File %s was deleted at %s  at %s,please handle it''' % (event.pathname,self.__ip,time.ctime())
             if get_email_tool():
@@ -132,7 +128,7 @@ class EventHandler(pyinotify.ProcessEvent):
         #file_tool.handle_file_event(event,_FILE_DELETED)
 
     def process_IN_ACCESS(self,event):
-        tools.log("Accessing:%s" % event.pathname,"UNDERLINE")
+        self.__log.warning("Accessing:%s" % event.pathname)
         if event.pathname in self.__access:
             print "SENDING EMAIL"
             string=self.__message_string % (event.pathname,"access",self.__ip,time.ctime())
@@ -140,40 +136,33 @@ class EventHandler(pyinotify.ProcessEvent):
                 emailtool.send_text(message=string,subject='File access')
 
     def process_IN_OPEN(self,event):
-        tools.log("Openning:%s" % event.pathname)
-        file_tool.handle_file_event(event,_FILE_READ)
+        self.__log.warning("Openning:%s" % event.pathname)
 
     def process_IN_MODIFY(self,event):
-        tools.log("Modifing:%s" % event.pathname,tools.WARN)
-        file_tool.handle_file_event(event,_FILE_CHANGED)
+        self.__log.warning("Modifing:%s" % event.pathname)
         string=self.__message_string % (event.pathname,"changed",self.__ip,time.ctime())
         if event.pathname not in self.__whitelist:
             if get_email_tool():
                 emialtool.send_text(message=string,subject='Important file modified')
 
     def process_IN_ATTRIB(self,event):
-        tools.log("Changing attribute:%s" % event.pathname,tools.WARN)
-        file_tool.handle_file_event(event,_FILE_ATTRI_CHANGED)
+        self.__log.warning("Changing attribute:%s" % event.pathname)
 
     def process_IN_CLOSE_WRITE(self,event):
-        tools.log("Close file with writing:%s" % event.pathname,tools.WARN)
+        self.__log.warning("Close file with writing:%s" % event.pathname)
         string=self.__message_string % (event.pathname,"changed",self.__ip,time.ctime())
         if event.pathname not in self.__whitelist:
             if get_email_tool():
                 emailtool.send_text(message=string,subject='Important file delete at %s' % self.__ip)
-        file_tool.handle_file_event(event,_FILE_CHANGED)
 
     def process_IN_CLOSE_NOWRITE(self,event):
-        tools.log("Close file without writing:%s" % event.pathname,tools.INFO)
-        file_tool.handle_file_event(event)
+        self.__log.warning("Close file without writing:%s" % event.pathname)
 
     def process_IN_MOVED_TO(self,event):
-        tools.log("Move to :%s" % event.pathname,tools.WARN)
-        file_tool.handle_file_event(event,_FILE_CHANGED)
+        self.__log.warning("Move to :%s" % event.pathname)
 
     def process_IN_MOVED_FROM(self,event):
-        tools.log("Move from:%s" % event.pathname,tools.WARN)
-        file_tool.handle_file_event(event,_FILE_CHANGED)
+        self.__log.warning("Move from:%s" % event.pathname)
 
 class MonitorFile():
     '''
@@ -269,33 +258,6 @@ def get_ip():
         s.close()
     return ip
 
-def get_monitor_and_exclude():
-    '''
-    Get monitor files and exclude files from config file
-    @parm:
-    @return:return monitor files and exclude files
-    @date:2017-05-19
-    @auth:yujun
-    '''
-    global target_files
-    target_files=tools.get_target_files("/home/yujun/work/python/mytool/notify/config/target_file.xml")
-    monitor_files=[f.file_path for f in target_files if f.file_path]
-    return monitor_files
-    #print monitor_files
-    '''
-    exclude_files=[]
-    for f in target_files:
-        if f.file_path:
-            excludes=[]
-            if f.exclude:
-                excludes=f.exclude.split(',')
-            for ec in excludes:
-                #print f.file_path
-                temp=os.path.join(f.file_path,ec)
-                temp=temp.replace("/",'\/')
-                exclude_files.append("^"+temp)
-    return (monitor_files,exclude_files)
-    '''
 
 def is_filechange_ok(file_name):
     '''
@@ -367,27 +329,20 @@ def get_email_tool():
     return emailtool
 
 
-def test():
+def tomcat_monitor():
     '''
     The method to test the function
     '''
 
     m=MonitorFile(get_config_file('monitor.json'))
-    #handler=EventHandler()
     tomcathandler=TomcatEventHandler(whitelist=m.get_tomcat_files()[1])
     wm=pyinotify.WatchManager()
-    #notifier=pyinotify.Notifier(wm,handler)
-    tomcat_notifier=pyinotify.Notifier(wm,tomcathandler)
-    #exclude_files=['/home/yujun/work/tomcat/yujunsecurity/apache-tomcat-7.0.59/logs/']
-    #exclude=pyinotify.ExcludeFilter(exclude_files)
-    #monitor_folders=m.get_monitor_folders()
-    #print(monitor_folders)
-    #wm.add_watch(monitor_folders,pyinotify.ALL_EVENTS,auto_add=True,rec=True)
+    tomcat_notifier=pyinotify.ThreadedNotifier(wm,tomcathandler)
     for t in m.get_tomcat_files()[0]:
         print(t)
         wm.add_watch(t,pyinotify.ALL_EVENTS,rec=True,auto_add=True)
-    #wm.add_watch(["/etc/passwd","/home/yujun/work/python/mytool","/home/yujun/work/tomcat/yujunsecurity/apache-tomcat-7.0.59"],pyinotify.ALL_EVENTS,rec=True,auto_add=True)
-    tomcat_notifier.loop()
+    tomcat_notifier.setDaemon(False)
+    tomcat_notifier.start()
 
 
     '''
@@ -396,7 +351,7 @@ def test():
     start_monitor(me[0],me[1])
     '''
 
-def monitor_system():
+def system_monitor():
     '''
     Monitor file except tomcat
     '''
@@ -420,10 +375,10 @@ def monitor_system():
         wm.add_watch(s_list,pyinotify.ALL_EVENTS,rec=True)
     else:
         handler=EventHandler([],[],[],[],[],[],whitelist=m.get_file('monitor-folders').get('white-list'))
-        #wm=pyinotify.WatchManager()
-    notifier=pyinotify.Notifier(wm,handler)
+    notifier=pyinotify.ThreadedNotifier(wm,handler)
     wm.add_watch(monitors,pyinotify.ALL_EVENTS,rec=True)
-    notifier.loop()
+    notifier.setDaemon(False)
+    notifier.start()
 
 #monitor_system()
 #test()

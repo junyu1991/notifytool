@@ -6,6 +6,8 @@ import os
 import time
 import traceback
 
+import logging,logging.handlers
+
 try:
     import xml.etree.cElementTree as ET
 except ImportError:
@@ -84,5 +86,47 @@ def log(strs,level=INFO,logfile='./log/%s.log'):
     except:
         print(strs)
 
-def send_email():
-    pass
+
+class Monitor_Log():
+    '''
+    The logging wrapper class
+    '''
+
+    import logging,logging.handlers
+
+    def __init__(self,logname,logfile,*args):
+        pre=os.path.join(os.path.dirname(os.path.abspath(__file__)),'../log/')
+        logfilename=os.path.join(pre,logfile)
+
+        self.__logger=logging.getLogger(logname)
+
+        filehandler=logging.handlers.TimedRotatingFileHandler(logfilename,when='midnight',interval=5,backupCount=3,encoding='utf8')
+        filehandler.suffix='%Y%m%d_%H%M%S.log'
+        filehandler.setLevel(logging.DEBUG)
+
+        fmt_str='%(asctime)s-[%(levelname)s]-%(name)s:%(message)s'
+        formatter=logging.Formatter(fmt_str)
+
+        filehandler.setFormatter(formatter)
+
+        self.__logger.addHandler(filehandler)
+        self.debug('Init logging tool success')
+
+    def warning(self,message):
+        self.__logger.warning(message)
+
+    def debug(self,message):
+        self.__logger.debug(message)
+
+    def info(self,message):
+        self.__logger.info(message)
+
+    def error(self,message):
+        self.__logger.error(message)
+
+    def critical(self,message):
+        self.__logger.critical(message)
+
+
+
+
