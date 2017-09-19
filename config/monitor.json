@@ -25,7 +25,7 @@
 			"tomcat-dirs":"The monitor tomcat file location,the program will auto exclude `logs`,`work`,`temp` folders",
 			"white-list":"The file under the tomcat folders that you don't want to trigger the monitor method",
 			"":"When jsp file changed and key words showed in the jsp file,the Warning email will be sent to the user",
-			"":"Other file such as .sh .xml file,will trager sending email when file modified,deleted"
+			"":"Other file such as .sh .xml file,will trigger sending email movement when file modified,deleted"
 		},
 		"monitor-files":"The other file you want to monitor",
 		"monitor-folders":{
